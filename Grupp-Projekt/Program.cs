@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
+using Microsoft.Win32;
 
 while (true)
 {
     Console.Clear();
-    Console.WriteLine("1 : Skriv ut alla processer\n2 : Avsluta");
+    Console.WriteLine("1 : Skriv ut alla processer\n2 : Skriv ut namnet på din processor\n3 : Avsluta");
     
     if(!Int32.TryParse(Console.ReadKey().KeyChar.ToString(), out int val))
     {
@@ -11,6 +12,7 @@ while (true)
         continue;
     }
 
+   
     Console.WriteLine("\n");
 
     switch (val)
@@ -20,15 +22,23 @@ while (true)
             break;
 
         case 2:
+            if(!SystemInformation.GetProcessorName())
+            {
+                Console.WriteLine("Misslyckades att läsa processornamnet"); 
+                break;
+            }
+            break;
+
+        case 3:
             return;
             
         default:
-            Console.WriteLine("Ogiltig siffra.");
+            Console.WriteLine("Ogiltig siffra."); 
             break;
     }
 
-    Console.WriteLine("\n");
-    Console.Write("Tryck på valfri tangent för att återvända till menyn... ");
+    Console.WriteLine();
+    Console.Write("Tryck på valfri tangent för att återvända till menyn...");
     Console.ReadKey();
 }
 
@@ -60,5 +70,18 @@ public static class SystemInformation
                 Console.WriteLine();
             }
         }
+    }
+
+    // Läser ett värde i registret(regedit.exe) som talar om vilken processor du har
+    public static bool GetProcessorName()
+    {
+        RegistryKey processorName = Registry.LocalMachine.OpenSubKey(@"Hardware\Description\System\CentralProcessor\0", RegistryKeyPermissionCheck.ReadSubTree);
+        if(processorName == null)
+        {
+            return false;
+        }
+        
+        Console.WriteLine(processorName.GetValue("ProcessorNameString"));
+        return true;
     }
 }
