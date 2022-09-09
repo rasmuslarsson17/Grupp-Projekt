@@ -4,7 +4,7 @@ using Microsoft.Win32;
 while (true)
 {
     Console.Clear();
-    Console.WriteLine("1 : Skriv ut alla processer\n2 : Skriv ut namnet på din processor\n3 : Avsluta");
+    Console.WriteLine("1 : Skriv ut alla processer\n2 : Skriv ut namnet på din processor\n3 : Skriv ut datorns produktnamn\n4 : Avsluta");
     
     if(!Int32.TryParse(Console.ReadKey().KeyChar.ToString(), out int val))
     {
@@ -12,7 +12,6 @@ while (true)
         continue;
     }
 
-   
     Console.WriteLine("\n");
 
     switch (val)
@@ -30,6 +29,14 @@ while (true)
             break;
 
         case 3:
+            if(!SystemInformation.GetProductName())
+            {
+                Console.WriteLine("Misslyckades att läsa produktnamnet");
+                break;
+            }
+            break;
+
+        case 4:
             return;
             
         default:
@@ -46,6 +53,7 @@ public static class SystemInformation
 {
     public static void ListProcesses()
     {
+        Console.Clear();
         Process[] procList = Process.GetProcesses();
         int i = 0, longestProcessNameLength = 0, longestProcessIdLength = 0;
 
@@ -75,6 +83,7 @@ public static class SystemInformation
     // Läser ett värde i registret(regedit.exe) som talar om vilken processor du har
     public static bool GetProcessorName()
     {
+        Console.Clear();
         RegistryKey processorName = Registry.LocalMachine.OpenSubKey(@"Hardware\Description\System\CentralProcessor\0", RegistryKeyPermissionCheck.ReadSubTree);
         if(processorName == null)
         {
@@ -84,4 +93,19 @@ public static class SystemInformation
         Console.WriteLine(processorName.GetValue("ProcessorNameString"));
         return true;
     }
+
+    // Får produktnamnet på datorn
+    public static bool GetProductName()
+    {
+        Console.Clear();
+        RegistryKey productName = Registry.LocalMachine.OpenSubKey(@"Hardware\Description\System\BIOS", RegistryKeyPermissionCheck.ReadSubTree);
+        if (productName == null)
+        {
+            return false;
+        }
+
+        Console.WriteLine(productName.GetValue("SystemProductName"));
+        return true;
+    }
+
 }
